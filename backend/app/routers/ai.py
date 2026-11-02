@@ -4,7 +4,7 @@ from app.database import SyncSessionLocal
 from app.schemas.api_schemas import AIExplanationResponse
 from app.services.gemini_ai import GeminiAIService
 
-router = APIRouter(prefix="/api/ai", tags=["AI Intelligence"])
+router = APIRouter(prefix="/ai", tags=["AI Intelligence"])
 
 @router.post("/explain/{decision_id}", response_model=AIExplanationResponse)
 def get_ai_explanation(decision_id: str):

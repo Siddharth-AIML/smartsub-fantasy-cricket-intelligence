@@ -9,7 +9,7 @@ from app.schemas.api_schemas import (
 )
 from app.services.match_simulator import MatchSimulator
 
-router = APIRouter(prefix="/api/fantasy-teams", tags=["Fantasy Teams"])
+router = APIRouter(prefix="/fantasy-teams", tags=["Fantasy Teams"])
 
 @router.get("/{team_id}", response_model=FantasyTeamSchema)
 def get_fantasy_team(team_id: str):

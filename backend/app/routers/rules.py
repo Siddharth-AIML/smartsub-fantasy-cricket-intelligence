@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.services.rule_evidence_register import get_rule_evidence_register
 
-router = APIRouter(prefix="/api/rules", tags=["Rules Evidence"])
+router = APIRouter(prefix="/rules", tags=["Rules Evidence"])
 
 @router.get("/evidence-register")
 def list_rule_evidence():

@@ -7,7 +7,7 @@ from app.schemas.api_schemas import MatchSchema, StepRequest, TriggerImpactReque
 from app.services.match_simulator import MatchSimulator
 from app.services.substitution_engine import SubstitutionEngine
 
-router = APIRouter(prefix="/api/matches", tags=["Matches"])
+router = APIRouter(prefix="/matches", tags=["Matches"])
 
 @router.get("", response_model=list[MatchSchema])
 def list_matches():

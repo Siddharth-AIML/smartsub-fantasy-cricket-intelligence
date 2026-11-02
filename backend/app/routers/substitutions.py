@@ -6,7 +6,7 @@ from app.models.match import MatchEvent
 from app.schemas.api_schemas import SubstitutionDecisionResponse
 from app.services.substitution_engine import SubstitutionEngine
 
-router = APIRouter(prefix="/api/substitutions", tags=["Substitutions"])
+router = APIRouter(prefix="/substitutions", tags=["Substitutions"])
 
 @router.get("/history/{team_id}", response_model=list[SubstitutionDecisionResponse])
 def get_substitution_history(team_id: str):

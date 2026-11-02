@@ -34,14 +34,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Routers
-app.include_router(matches.router)
-app.include_router(fantasy_teams.router)
-app.include_router(substitutions.router)
-app.include_router(ai.router)
-app.include_router(rules.router)
+# Mount Routers (Dual-mounting: supports both /api/<route> and /<route> for seamless client compatibility)
+all_routers = [matches.router, fantasy_teams.router, substitutions.router, ai.router, rules.router]
+for r in all_routers:
+    app.include_router(r, prefix="/api")
+    app.include_router(r, prefix="")
 
 @app.get("/health")
+@app.get("/api/health")
 def health_check():
     return {
         "status": "healthy",

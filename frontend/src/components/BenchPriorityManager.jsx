@@ -11,12 +11,24 @@ export default function BenchPriorityManager({
   const slots = fantasyTeam?.lineup_slots || [];
   const playerPointsMap = liveState?.player_points_map || {};
 
+  const isSelected = (status) => {
+    if (!status) return false;
+    const s = typeof status === "object" ? (status.value || status.name || "") : String(status);
+    return s.toUpperCase() === "SELECTED";
+  };
+
+  const isSubstitutedOut = (status) => {
+    if (!status) return false;
+    const s = typeof status === "object" ? (status.value || status.name || "") : String(status);
+    return s.toUpperCase() === "SUBSTITUTED_OUT";
+  };
+
   const benchSlots = slots
-    .filter(s => s.slot_type === "BACKUP")
+    .filter(s => s.slot_type === "BACKUP" || (s.priority_rank != null && s.slot_type !== "STARTER"))
     .sort((a, b) => (a.priority_rank || 0) - (b.priority_rank || 0));
 
   // Replaced / Substituted players
-  const substitutedSlots = slots.filter(s => s.fantasy_selection_status === "SUBSTITUTED_OUT");
+  const substitutedSlots = slots.filter(s => isSubstitutedOut(s.fantasy_selection_status));
 
   const handleMove = (index, direction) => {
     const targetIndex = index + direction;
@@ -70,7 +82,7 @@ export default function BenchPriorityManager({
             Section A: Active Backup Queue (B1–B4)
           </span>
           <span className="text-[11px] font-mono text-slate-400">
-            4 Allocated Backups
+            {benchSlots.length} Allocated Backups
           </span>
         </div>
 

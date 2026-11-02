@@ -53,20 +53,21 @@ export default function App() {
   }, [matchId, teamId]);
 
   const loadAllData = async () => {
+    setIsLoading(true);
     try {
       const [h, ls, ft, decs, r] = await Promise.all([
-        fetchHealth().catch(() => null),
-        fetchLiveState(matchId).catch(() => null),
-        fetchFantasyTeam(teamId).catch(() => null),
-        fetchSubstitutionHistory(teamId).catch(() => []),
-        fetchRuleEvidenceRegister().catch(() => null)
+        fetchHealth().catch(err => { console.warn("fetchHealth:", err); return null; }),
+        fetchLiveState(matchId).catch(err => { console.warn("fetchLiveState:", err); return null; }),
+        fetchFantasyTeam(teamId).catch(err => { console.warn("fetchFantasyTeam:", err); return null; }),
+        fetchSubstitutionHistory(teamId).catch(err => { console.warn("fetchSubstitutionHistory:", err); return []; }),
+        fetchRuleEvidenceRegister().catch(err => { console.warn("fetchRuleEvidenceRegister:", err); return null; })
       ]);
 
-      setHealthInfo(h);
-      setLiveState(ls);
-      setFantasyTeam(ft);
-      setDecisions(decs || []);
-      setRulesData(r);
+      if (h) setHealthInfo(h);
+      if (ls && (ls.scoreboard || ls.status)) setLiveState(ls);
+      if (ft && ft.id && Array.isArray(ft.lineup_slots)) setFantasyTeam(ft);
+      if (Array.isArray(decs)) setDecisions(decs);
+      if (r) setRulesData(r);
 
       // Auto-select latest decision if available
       if (decs && decs.length > 0) {
@@ -75,6 +76,8 @@ export default function App() {
       }
     } catch (err) {
       console.error("Failed to load initial data:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 

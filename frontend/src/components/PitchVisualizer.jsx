@@ -7,18 +7,40 @@ export default function PitchVisualizer({ fantasyTeam, liveState }) {
   const slots = fantasyTeam?.lineup_slots || [];
   const playerPointsMap = liveState?.player_points_map || {};
 
+  const isSelected = (status) => {
+    if (!status) return false;
+    const s = typeof status === "object" ? (status.value || status.name || "") : String(status);
+    return s.toUpperCase() === "SELECTED";
+  };
+
+  const isSubstitutedOut = (status) => {
+    if (!status) return false;
+    const s = typeof status === "object" ? (status.value || status.name || "") : String(status);
+    return s.toUpperCase() === "SUBSTITUTED_OUT";
+  };
+
+  const getRole = (role) => {
+    if (!role) return "BAT";
+    const r = typeof role === "object" ? (role.value || role.name || "") : String(role);
+    return r.toUpperCase();
+  };
+
   // Strict backend single source of truth: only currently SELECTED players are active on pitch
-  const selectedSlots = slots.filter(s => s.fantasy_selection_status === "SELECTED");
-  const substitutedSlots = slots.filter(s => s.fantasy_selection_status === "SUBSTITUTED_OUT");
+  const selectedSlots = slots.filter(s => isSelected(s.fantasy_selection_status));
+  const substitutedSlots = slots.filter(s => isSubstitutedOut(s.fantasy_selection_status));
   
   const captainId = fantasyTeam?.captain_player_id;
   const viceCaptainId = fantasyTeam?.vice_captain_player_id;
 
   // Group active 11 by role
-  const wk = selectedSlots.filter(s => s.player.role === "WK");
-  const bat = selectedSlots.filter(s => s.player.role === "BAT");
-  const ar = selectedSlots.filter(s => s.player.role === "AR");
-  const bowl = selectedSlots.filter(s => s.player.role === "BOWL");
+  const wk = selectedSlots.filter(s => getRole(s.player?.role) === "WK");
+  const bat = selectedSlots.filter(s => getRole(s.player?.role) === "BAT");
+  const ar = selectedSlots.filter(s => getRole(s.player?.role) === "AR");
+  const bowl = selectedSlots.filter(s => getRole(s.player?.role) === "BOWL");
+  const others = selectedSlots.filter(s => !["WK", "BAT", "AR", "BOWL"].includes(getRole(s.player?.role)));
+  if (others.length > 0) {
+    ar.push(...others);
+  }
 
   const totalCredits = selectedSlots.reduce((sum, s) => sum + s.player.credits, 0);
 

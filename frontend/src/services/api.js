@@ -1,97 +1,105 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+// SmartSub API Client Service
+// Robust base URL normalization supporting Vercel, Render, and Localhost
+
+const RAW_URL = (import.meta.env.VITE_API_BASE_URL || "").trim().replace(/\/+$/, "");
+
+// Normalize API root (for /health) and API base (for /api endpoints)
+export const API_ROOT = RAW_URL.replace(/\/api$/, "");
+export const API_BASE = RAW_URL
+  ? (RAW_URL.endsWith("/api") ? RAW_URL : `${RAW_URL}/api`)
+  : "/api";
+
+async function request(url, options = {}) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "");
+    throw new Error(`API ${options.method || 'GET'} ${url} returned ${res.status}: ${errorText || res.statusText}`);
+  }
+  return res.json();
+}
 
 export async function fetchHealth() {
-  const res = await fetch(`${API_BASE}/health`);
-  return res.json();
+  // Support both /health at root and /api/health as fallback
+  const primaryUrl = `${API_ROOT || API_BASE}/health`;
+  try {
+    return await request(primaryUrl);
+  } catch (err) {
+    return await request(`${API_BASE}/health`);
+  }
 }
 
 export async function fetchMatches() {
-  const res = await fetch(`${API_BASE}/matches`);
-  return res.json();
+  return request(`${API_BASE}/matches`);
 }
 
 export async function fetchLiveState(matchId) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/live-state`);
-  return res.json();
+  return request(`${API_BASE}/matches/${matchId}/live-state`);
 }
 
 export async function stepSimulation(matchId, stepType) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/step`, {
+  return request(`${API_BASE}/matches/${matchId}/step`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ step_type: stepType })
   });
-  return res.json();
 }
 
 export async function triggerImpactPlayer(matchId, playerOutId = "p_csk_thakur", playerInId = "p_csk_stoinis") {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/trigger-impact-player`, {
+  return request(`${API_BASE}/matches/${matchId}/trigger-impact-player`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ player_out_id: playerOutId, player_in_id: playerInId })
   });
-  return res.json();
 }
 
 export async function resetMatch(matchId) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/reset`, { method: "POST" });
-  return res.json();
+  return request(`${API_BASE}/matches/${matchId}/reset`, { method: "POST" });
 }
 
 export async function replayMatch(matchId) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/replay`, { method: "POST" });
-  return res.json();
+  return request(`${API_BASE}/matches/${matchId}/replay`, { method: "POST" });
 }
 
 export async function fetchFantasyTeam(teamId) {
-  const res = await fetch(`${API_BASE}/fantasy-teams/${teamId}`);
-  return res.json();
+  return request(`${API_BASE}/fantasy-teams/${teamId}`);
 }
 
 export async function updateBenchPriority(teamId, priorities) {
-  const res = await fetch(`${API_BASE}/fantasy-teams/${teamId}/bench-priority`, {
+  return request(`${API_BASE}/fantasy-teams/${teamId}/bench-priority`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ priorities })
   });
-  return res.json();
 }
 
 export async function updateRuleConfig(teamId, config) {
-  const res = await fetch(`${API_BASE}/fantasy-teams/${teamId}/rule-config`, {
+  return request(`${API_BASE}/fantasy-teams/${teamId}/rule-config`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(config)
   });
-  return res.json();
 }
 
 export async function fetchSubstitutionHistory(teamId) {
-  const res = await fetch(`${API_BASE}/substitutions/history/${teamId}`);
-  return res.json();
+  return request(`${API_BASE}/substitutions/history/${teamId}`);
 }
 
 export async function fetchDecisionDetails(decisionId) {
-  const res = await fetch(`${API_BASE}/substitutions/decision/${decisionId}`);
-  return res.json();
+  return request(`${API_BASE}/substitutions/decision/${decisionId}`);
 }
 
 export async function fetchAIExplanation(decisionId) {
-  const res = await fetch(`${API_BASE}/ai/explain/${decisionId}`, { method: "POST" });
-  return res.json();
+  return request(`${API_BASE}/ai/explain/${decisionId}`, { method: "POST" });
 }
 
 export async function fetchRuleEvidenceRegister() {
-  const res = await fetch(`${API_BASE}/rules/evidence-register`);
-  return res.json();
+  return request(`${API_BASE}/rules/evidence-register`);
 }
 
 export async function runScenario1Automated(matchId) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/scenarios/run-scenario-1`, { method: "POST" });
-  return res.json();
+  return request(`${API_BASE}/matches/${matchId}/scenarios/run-scenario-1`, { method: "POST" });
 }
 
 export async function runScenario2Automated(matchId) {
-  const res = await fetch(`${API_BASE}/matches/${matchId}/scenarios/run-scenario-2`, { method: "POST" });
-  return res.json();
+  return request(`${API_BASE}/matches/${matchId}/scenarios/run-scenario-2`, { method: "POST" });
 }
