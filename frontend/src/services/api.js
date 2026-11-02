@@ -1,4 +1,3 @@
-VITE_API_BASE_URL
 const API_BASE = "https://smartsub-fantasy-cricket.vercel.app" || "http://127.0.0.1:8000/api";
 
 export async function fetchHealth() {
