@@ -1,7 +1,8 @@
-const API_BASE = "http://127.0.0.1:8000/api";
+VITE_API_BASE_URL
+const API_BASE = "https://smartsub-fantasy-cricket.vercel.app" || "http://127.0.0.1:8000/api";
 
 export async function fetchHealth() {
-  const res = await fetch("http://127.0.0.1:8000/health");
+  const res = await fetch(`${API_BASE}/health`);
   return res.json();
 }
 
